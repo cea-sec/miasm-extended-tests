@@ -50,8 +50,26 @@ def test_move_resource(data):
     new_pe = PE(out)
 
 
+def test_move_import(data):
+    pe = PE(data)
+    if pe.NThdr.optentries[DIRECTORY_ENTRY_IMPORT].rva == 0:
+        return
+    # Move Import
+    s_imp = pe.SHList.add_section(
+        name="myimp",
+        rawsize=len(pe.DirImport)
+    )
+    pe.DirImport.set_rva(s_imp.addr)
+
+    out = bytes(pe)
+    # Re parse PE
+    new_pe = PE(out)
+
 log.info("Test 1: read/write")
 do_test(test_read_write)
 
 log.info("Test 2: New resource section")
 do_test(test_move_resource)
+
+log.info("Test 2: New import section")
+do_test(test_move_import)
